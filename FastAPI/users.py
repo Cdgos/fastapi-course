@@ -62,4 +62,20 @@ async def users():
 # Path = pasar informacion a nuestra API.
 @app.get("/user/{id}")
 async def user(id: int): # FastAPI trabaja tipando el tipo de dato.
-    return users_list
+    return search_user(id)
+    
+
+# Query: /?campo=valor
+@app.get("/user/")
+async def userquery(id: int): # FastAPI trabaja tipando el tipo de dato.
+    return search_user(id)
+
+    
+def search_user(id: int):
+    users = filter(lambda user: user.id == id, users_list) # Objeto filter
+    
+    try:
+        # Convertimos a lista y devolvermos el primero.
+        return list(users)[0]
+    except:
+        return {"error": "No se ha encontrado el usuario."}
