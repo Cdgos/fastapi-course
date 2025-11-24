@@ -53,24 +53,69 @@ async def usersjson():
     ]
 """
 
-# Get de usuarios
+# GET - Obtener todos los usuarios
 @app.get("/users")
-async def users():
+async def get_users():
     return users_list
 
 
-# Path = pasar informacion a nuestra API.
-@app.get("/user/{id}")
-async def user(id: int): # FastAPI trabaja tipando el tipo de dato.
+# GET - Path = Obtener un usuario por ID (Path Parameter) - OBLIGATORIOS.
+@app.get("/users/{id}")
+async def get_user_by_id(id: int): # FastAPI trabaja tipando el tipo de dato.
     return search_user(id)
     
 
-# Query: /?campo=valor
-@app.get("/user/")
-async def userquery(id: int): # FastAPI trabaja tipando el tipo de dato.
+# GET - Query: /?campo=valor (Parametros DINAMICOS: Podemos tener mas de 1. No son obligatorios).
+# Mas parametros: /?campo1=valor1&campo2=valor2
+@app.get("/users")
+async def get_user_by_query(id: int): # FastAPI trabaja tipando el tipo de dato.
     return search_user(id)
 
-    
+
+# POST: Crear un nuevo usuario
+@app.post("/users")
+async def create_user(user: User):
+
+    # Vereficamos que no exista
+    if type(search_user(user.id)) == User:
+        return {"error": "El usuario ya existe."}
+
+    users_list.append(user)
+    return user
+
+
+# PUT: Actualizar un usuario
+@app.put("/users")
+async def update_user(user: User):
+
+    found = False
+
+    for index, saved_user in enumerate(users_list):
+        if saved_user.id == user.id:
+            users_list[index] = user
+            found = True
+
+    if not found:
+        return {"error": "No se ha encontrado el usuario."}
+
+    return user
+
+
+# DELETE: Eliminar usuario
+@app.delete('/users/{id}')
+async def delete_user(id: int):
+
+    found = False
+
+    for index, saved_user in enumerate(users_list):
+        if saved_user.id == id:
+            del users_list[index]
+            found = True
+
+    if not found:
+        return {"error": "No se ha encontrado el usuario."}    
+
+
 def search_user(id: int):
     users = filter(lambda user: user.id == id, users_list) # Objeto filter
     
